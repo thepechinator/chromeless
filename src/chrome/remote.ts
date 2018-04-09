@@ -121,7 +121,7 @@ export default class RemoteChrome implements Chrome {
 
                 if (data.outOfTime) {
                   console.warn(
-                    `Chromeless Proxy disconnected because it reached it's execution time limit (5 minutes).`,
+                    `Chromeless Proxy disconnected because it reached its execution time limit (15 seconds!).`,
                   )
                 } else if (data.inactivity) {
                   console.warn(
@@ -171,6 +171,11 @@ export default class RemoteChrome implements Chrome {
             } else {
               resolve()
             }
+          } else if (this.TOPIC_END === topic) {
+            // This will allow whatever is using chromeless on the other side
+            // to proceed on proxy timeouts. Without this conditional, it will just hang.
+            const status = JSON.parse(buffer.toString());
+            reject(status);
           }
         })
         this.channel.publish(this.TOPIC_REQUEST, JSON.stringify(command))
